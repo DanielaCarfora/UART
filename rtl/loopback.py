@@ -12,22 +12,21 @@ from coregen.utils import log2up
 @hdl.block
 def Loopback(clk_i, rst_i, rx_i, tx_o, anodos_o, segmentos_o, FIFO_DEPTH=1024, CLK_BUS=50_000_000, BAUD_RATE=115200):
 
-    tx_dat = createSignal(0,8) # entrada tx_dat_i del UART
     tx_start = createSignal(0,1) # entrada tx_start_i del UART
     tx_ready = createSignal(0,1) # salida tx_ready_o del UART
-  	rx_ready = createSignal(0,1) # salida rx_ready_o del UART
-  	rx_dat = createSignal(0,8) # salida rx_dat_o del UART y entrada dat_i del FIFO
-  	enqueue = createSignal(0,1) # entrada enqueue_i del FIFO
-  	dequeue = createSignal(0,1) # entrada dequeue_i del FIFO
-  	empty = createSignal(0,1) #salida empty_o del FIFO
-  	full = createSignal(0,1) # salida full_o del FIFO
-  	dat = createSignal(0,1) # entrada dat_i del tx
-  	value = createSignal(0,1) # salida count_o del FIFO y entrada value_i del Driver7Seg 
-  	l_state = hdl.enum('IDLE','DATA')
-  	state = hdl.Signal(l_state.IDLE)
+    rx_ready = createSignal(0,1) # salida rx_ready_o del UART
+    rx_dat = createSignal(0,8) # salida rx_dat_o del UART y entrada dat_i del FIFO
+    enqueue = createSignal(0,1) # entrada enqueue_i del FIFO
+    dequeue = createSignal(0,1) # entrada dequeue_i del FIFO
+    empty = createSignal(0,1) #salida empty_o del FIFO
+    full = createSignal(0,1) # salida full_o del FIFO
+    dat = createSignal(0,8) # entrada dat_i del tx y salida dat_o del FIFO
+    value = createSignal(0,9) # salida count_o del FIFO y entrada value_i del Driver7Seg 
+    l_state = hdl.enum('IDLE','DATA')
+    state = hdl.Signal(l_state.IDLE)
 
     uart = UART(clk_i =clk_i , rst_i=rst_i,
-         tx_dat_i = tx_dat, tx_start_i=tx_start, tx_ready_o = tx_ready, tx_o = tx_o,
+         tx_dat_i = dat, tx_start_i=tx_start, tx_ready_o = tx_ready, tx_o = tx_o,
          rx_dat_o =rx_dat, rx_ready_o=rx_ready, rx_i = rx_i,
          CLK_BUS=50_000_000,
          BAUD_RATE=115200)
@@ -41,23 +40,22 @@ def Loopback(clk_i, rst_i, rx_i, tx_o, anodos_o, segmentos_o, FIFO_DEPTH=1024, C
     	value_i=value, anodos_o=anodos_o, segmentos_o=segmentos_o,
     	CLK_BUS=50_000_000)
     
-    @hdl.always_seq(clk_i.posedge, reset=rst_i) 
-    	def l_state_m():
-    		if state == l_state.DATA:
-    			if full or rx_dat == 0x0A:
-    				tx_start.next = 0
-    				state.next = l_state.DATA
-    				enqueue = 0
-    		elif state == l_state.DATA:
-    			if tx_ready:
-	    			dequeue.next = 1
-	    			tx_start.next = 1
-	    		if rx_ready:
-	    			enqueue = 1
-	    		if empty:
-	    			dequeue = 0
-    		else:
-    			state.next = l_state.IDLE
+    @hdl.always_seq(clk_i.posedge, reset=rst_i) # tx_ready es 1 en IDLE y 0 en TX // rx_ready es 1 en STOP y 0 en DATA, IDLE
+    def l_state_m():
+    	if state == l_state.IDLE:
+    		if full or rx_dat == 0x0A:
+    			tx_start.next = 0
+    			dequeue.next = 1
+    			enqueue.next =0
+    			state.next = l_state.DATA
+    	elif state == l_state.DATA:
+    		if empty:
+    			tx_start.next  = 1
+    			dequeue.next  = 0
+    			enqueue.next  = 1
+    			state.next  = l_state.IDLE
+    	else:
+    		state.next  = l_state.IDLE
     
     return hdl.instances()
 

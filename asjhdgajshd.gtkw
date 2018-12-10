@@ -1,0 +1,32 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Mon Dec 10 16:53:46 2018
+[*]
+[dumpfile] "/home/danielacarfora/git-repos/UART/loopback_testbench.vcd"
+[dumpfile_mtime] "Mon Dec 10 16:51:40 2018"
+[dumpfile_size] 3092513
+[savefile] "/home/danielacarfora/git-repos/UART/asjhdgajshd.gtkw"
+[timestart] 0
+[size] 1280 745
+[pos] -1 -1
+*-14.561418 43200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] loopback_testbench.
+[treeopen] loopback_testbench.Loopback0.
+[sst_width] 202
+[signals_width] 144
+[sst_expanded] 1
+[sst_vpaned_height] 198
+@28
+loopback_testbench.clk
+loopback_testbench.rst
+loopback_testbench.tx
+loopback_testbench.rx
+@200
+-
+@28
+loopback_testbench.Loopback0.UART0.tx_start_i
+loopback_testbench.Loopback0.dequeue
+@29
+loopback_testbench.Loopback0.enqueue
+[pattern_trace] 1
+[pattern_trace] 0
